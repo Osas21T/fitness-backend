@@ -4,7 +4,7 @@ const express = require('express'); // Framework to build the server
 const multer = require('multer'); // Handles photo uploads
 const fs = require('fs').promises; // File system operations
 const path = require('path');
-const fal = require('@fal-ai/serverless-client'); // Fal.ai client
+const * as fal from '@fal-ai/serverless-client';
 
 // Configure Fal.ai with your API key
 fal.config({
@@ -107,9 +107,9 @@ The result should look natural and photorealistic, like a real fitness transform
     
     console.log('🎨 Sending to Fal.ai for transformation...');
     
-    // Step 4: Call Fal.ai API
+    // Step 4: Call Fal.ai API (v0.14.3 syntax)
     // Using fal-ai/flux-pro/v1.1-ultra for high-quality transformations
-    const result = await fal.subscribe('fal-ai/flux-pro/v1.1-ultra', {
+    const result = await fal.run('fal-ai/flux-pro/v1.1-ultra', {
       input: {
         prompt: transformationPrompt,
         image_url: imageDataUrl,
@@ -118,21 +118,15 @@ The result should look natural and photorealistic, like a real fitness transform
         num_images: 1,
         enable_safety_checker: true,
         output_format: 'jpeg'
-      },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === 'IN_PROGRESS') {
-          console.log('⏳ Generation in progress...');
-        }
       }
     });
     
     // Step 5: Get the generated image URL
-    if (!result.data || !result.data.images || result.data.images.length === 0) {
+    if (!result || !result.images || result.images.length === 0) {
       throw new Error('No image was generated');
     }
     
-    const generatedImageUrl = result.data.images[0].url;
+    const generatedImageUrl = result.images[0].url;
     
     console.log('✨ Image generated successfully!');
     console.log(`🔗 Image URL: ${generatedImageUrl}`);
